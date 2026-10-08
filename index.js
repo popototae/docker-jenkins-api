@@ -22,7 +22,7 @@ const pool = mysql.createPool({
 app.get("/health", async (req, res) => {
   try {
     const [rows] = await pool.query("SELECT 1 AS ok");
-    res.json({ status: "okkkkk", db: rows[0].ok === 1 });
+    res.json({ status: "ok", db: rows[0].ok === 1 });
   } catch (e) {
     console.error(e);
     res.status(500).json({ status: "error", message: e.message });
