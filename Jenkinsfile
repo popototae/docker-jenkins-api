@@ -91,6 +91,22 @@ API_PORT=3001
             }
         }
 
+        stage('API Test (Bruno)') {
+            steps {
+                echo 'Testing the deployed API and MySQL with Bruno...'
+                sh 'mkdir -p api-test-results'
+                dir('bruno') {
+                    sh '../node_modules/.bin/bru run --env Local --reporter-json ../api-test-results/results.json --reporter-junit ../api-test-results/results.xml --reporter-html ../api-test-results/results.html'
+                }
+            }
+            post {
+                always {
+                    junit testResults: 'api-test-results/results.xml', allowEmptyResults: true
+                    archiveArtifacts artifacts: 'api-test-results/**', allowEmptyArchive: true
+                }
+            }
+        }
+
         stage('Verify Deployment') {
             steps {
                 echo 'Verifying deployed services...'

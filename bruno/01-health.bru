@@ -1,0 +1,47 @@
+meta {
+  name: API and database are ready
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/health
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+vars:pre-request {
+  baseUrl: http://127.0.0.1:3001
+}
+
+tests {
+  test("Health returns HTTP 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Health returns JSON", function () {
+    expect(res.getHeader("content-type")).to.include("application/json");
+  });
+
+  test("API status is ok", function () {
+    expect(res.getBody().status).to.equal("ok");
+  });
+
+  test("Database connection is healthy", function () {
+    expect(res.getBody().db).to.equal(true);
+  });
+}
+
+settings {
+  encodeUrl: false
+  timeout: 5000
+}
+
+docs {
+  GET /health checks the real MySQL connection with SELECT 1.
+  A running HTTP server alone is not enough to pass.
+}

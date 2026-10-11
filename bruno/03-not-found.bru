@@ -1,0 +1,34 @@
+meta {
+  name: Unknown route returns not found
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/does-not-exist
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  baseUrl: http://127.0.0.1:3001
+}
+
+tests {
+  test("Unknown route returns HTTP 404", function () {
+    expect(res.getStatus()).to.equal(404);
+  });
+
+  test("Response identifies the missing route", function () {
+    expect(res.getBody()).to.include("Cannot GET /does-not-exist");
+  });
+}
+
+settings {
+  encodeUrl: false
+  timeout: 5000
+}
+
+docs {
+  Verify the existing Express 404 behavior without changing the API or database.
+}

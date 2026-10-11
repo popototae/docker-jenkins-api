@@ -4,7 +4,9 @@
   "main": "index.js",
   "scripts": {
     "test": "node --test",
-    "start": "node index.js"
+    "start": "node index.js",
+    "test:api": "node -e \"require('node:fs').mkdirSync('api-test-results', {recursive:true})\" && cd bruno && bru run --env Local --reporter-json ../api-test-results/results.json --reporter-junit ../api-test-results/results.xml --reporter-html ../api-test-results/results.html",
+    "test:api:vps": "node -e \"require('node:fs').mkdirSync('api-test-results', {recursive:true})\" && cd bruno && bru run --env VPS --reporter-json ../api-test-results/results.json --reporter-junit ../api-test-results/results.xml --reporter-html ../api-test-results/results.html"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +19,7 @@
     "mysql2": "^3.24.4"
   },
   "devDependencies": {
+    "@usebruno/cli": "^4.2.1",
     "supertest": "^7.3.1"
   }
 }

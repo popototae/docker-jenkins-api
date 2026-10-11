@@ -1,0 +1,82 @@
+meta {
+  name: Attractions list and data contract
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/attractions
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+vars:pre-request {
+  baseUrl: http://127.0.0.1:3001
+}
+
+tests {
+  test("Attractions returns HTTP 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Attractions returns JSON", function () {
+    expect(res.getHeader("content-type")).to.include("application/json");
+  });
+
+  test("Response is an array", function () {
+    expect(res.getBody()).to.be.an("array");
+  });
+
+  test("Every attraction has the fields the frontend needs", function () {
+    const rows = res.getBody();
+    expect(rows).to.be.an("array");
+    rows.forEach(function (row) {
+      expect(row).to.include.all.keys("id", "name", "detail", "coverimage", "latitude", "longitude");
+      expect(Number.isInteger(row.id)).to.equal(true);
+      expect(row.id).to.be.greaterThan(0);
+      expect(row.name).to.be.a("string");
+      expect(row.name.trim().length).to.be.greaterThan(0);
+      expect(row.detail).to.be.a("string");
+      expect(row.coverimage).to.be.a("string");
+      expect(row.coverimage.length).to.be.greaterThan(0);
+    });
+  });
+
+  test("Attraction IDs are unique", function () {
+    const rows = res.getBody();
+    expect(rows).to.be.an("array");
+    const ids = rows.map(function (row) { return row.id; });
+    expect(new Set(ids).size).to.equal(ids.length);
+  });
+
+  test("Coordinates are numeric and within valid ranges", function () {
+    const rows = res.getBody();
+    expect(rows).to.be.an("array");
+    rows.forEach(function (row) {
+      [row.latitude, row.longitude].forEach(function (value) {
+        expect(typeof value === "number" || (typeof value === "string" && /^-?\d+(\.\d+)?$/.test(value))).to.equal(true);
+      });
+      const latitude = Number(row.latitude);
+      const longitude = Number(row.longitude);
+      expect(Number.isFinite(latitude)).to.equal(true);
+      expect(Number.isFinite(longitude)).to.equal(true);
+      expect(latitude).to.be.within(-90, 90);
+      expect(longitude).to.be.within(-180, 180);
+    });
+  });
+}
+
+settings {
+  encodeUrl: false
+  timeout: 5000
+}
+
+docs {
+  GET /attractions reads real database rows.
+  Empty arrays are valid. These tests do not depend on seed count or row order.
+  MySQL DECIMAL coordinates may be returned as numeric strings.
+}

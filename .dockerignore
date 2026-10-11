@@ -4,3 +4,4 @@ npm-debug.log
 !.env.example
 .git
 coverage
+api-test-results

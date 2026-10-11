@@ -2,13 +2,30 @@
 
 Express API และ MySQL สำหรับ attractions แยก repository และ pipeline จาก monorepo เดิม
 
+## API tests ผ่าน CLI (Bruno)
+
+อ่าน [API-TESTING.md](API-TESTING.md) สำหรับวิธีรัน เปิด collection ใน Bruno และอ่าน tests
+
+```powershell
+npm ci --include=dev
+npm run test:api
+```
+
+เริ่มจาก API บนเครื่องที่ `http://127.0.0.1:3001` ไม่ต้อง deploy หรือใช้ VPS เพื่อฝึก Bruno
+ทดสอบ 3 requests (`/health`, `/attractions`, route ที่ไม่มีอยู่) รวม 12 tests ผ่าน HTTP ไปฐานข้อมูลจริง
+รายงาน HTML/JSON/JUnit อยู่ใน `api-test-results/` และไม่ถูก commit
+
 ## Jenkins flow
 
 ```text
-Checkout → Prepare Environment → Validate → Unit Test → Build → Deploy MySQL/API → Health Check → Verify Deployment
+Checkout → Prepare Environment → Validate → Unit Test → Build → Deploy MySQL/API → Health Check → API Test (Bruno) → Verify Deployment
 ```
 
 อ่าน [Jenkinsfile](Jenkinsfile) ตาม stage ได้โดยตรง ไม่เรียกไฟล์ .sh ใช้ NodeJS tool ชื่อ `Node22` และ polling repo นี้ประมาณทุก 2 นาที
+
+Bruno รัน 12 tests กับ API ที่เพิ่ง deploy ผ่าน `127.0.0.1:3001` บนเครื่อง Jenkins และอ่าน MySQL จริง
+เมื่อ fail build จะไม่ผ่าน รายงานอยู่ใน Test Result และ Artifacts ของ build แม้ tests ไม่ผ่าน
+Jenkins ต้องมี JUnit plugin เพื่อแสดงผล `api-test-results/results.xml`
 
 ## เริ่มใช้งาน
 
